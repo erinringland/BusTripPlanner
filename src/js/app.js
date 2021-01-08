@@ -11,18 +11,10 @@ const mapAPIBB = "&bbox=-97.325875,49.766204,-96.953987,49.99275";
 const mapAPILimit = ".json?limit=10";
 const mapAPIKey =
   "&access_token=pk.eyJ1IjoiZXJpbnJpbmdsYW5kIiwiYSI6ImNramxrMnVjczA1cWMycXF1bnBpZjd3NTEifQ.7yWMSJkj2XtoX7XlAkbbDw";
-// const busAPIURL =
-//   "https://api.winnipegtransit.com/v3/trip-planner.json?api-key=BGA5REIJoz3BbXP5CXN4";
-// const busAPIorigin = "&origin=geo/";
-// const busAPIdest = "&destination=geo/";
-
-///https://api.winnipegtransit.com/v3/trip-planner.json?api-key=BGA5REIJoz3BbXP5CXN4&origin=geo/49.8638714,-97.1848822&destination=geo/49.8093036,-97.1356527
-
-///49.8638714
-///-97.1848822
-
-///49.8093036
-///-97.1356527
+const busAPIURL =
+  "https://api.winnipegtransit.com/v3/trip-planner.json?api-key=BGA5REIJoz3BbXP5CXN4&usage=long";
+const busAPIorigin = "&origin=geo/";
+const busAPIdest = "&destination=geo/";
 
 function clearPage() {
   startLocationSuggestions.innerHTML = "";
@@ -118,6 +110,40 @@ function displayDestinationResults(destResults) {
   });
 }
 
+function tripPlanner(startLat, startLong, destLat, destLong) {
+  let startCoord = startLat + "," + startLong;
+  let destCoord = destLat + "," + destLong;
+  let finalBusAPIURL =
+    busAPIURL + busAPIorigin + startCoord + busAPIdest + destCoord;
+  fetch(finalBusAPIURL)
+    .then((response) => response.json())
+    .then((trips) => {
+      if (trips.plans.length === 0) {
+        console.log("There are no results!");
+      }
+      let recommendedTrip = trips.plans.shift();
+      let altTrips = trips.plans;
+
+      console.log(recommendedTrip.segments);
+      recommendedTrip.segments.forEach((directions) => {
+        console.log(directions.type);
+        if (directions.type === "walk") {
+          console.log("Walk bitch");
+        }
+        if (directions.type === "transfer") {
+          console.log("transfer!!!");
+        }
+        if (directions.type === "ride") {
+          console.log("horse");
+        }
+      });
+
+      // console.log(altTrips);
+      // altTrips.forEach((altTripResults) => console.log(altTripResults))
+    });
+}
+
+tripPlanner(49.8638714, -97.1848822, 49.8093036, -97.1356527);
 // clearPage();
 
 startLocation.addEventListener("submit", function (e) {
@@ -141,7 +167,7 @@ destLocation.addEventListener("submit", function (e) {
 });
 
 for (let i = 0; i < startItems.length; i++) {
-  startItems[i].addEventListener("click", function (e) {
+  startItems[i].addEventListener("click", function () {
     if (startLocationSuggestions.querySelector(".selected")) {
       startLocationSuggestions
         .querySelector(".selected")
@@ -152,7 +178,7 @@ for (let i = 0; i < startItems.length; i++) {
 }
 
 for (let i = 0; i < destItems.length; i++) {
-  destItems[i].addEventListener("click", function (e) {
+  destItems[i].addEventListener("click", function () {
     if (destLocationSuggestions.querySelector(".selected")) {
       destLocationSuggestions
         .querySelector(".selected")
