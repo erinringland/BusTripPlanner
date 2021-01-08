@@ -142,8 +142,10 @@ destLocation.addEventListener("submit", function (e) {
 
 for (let i = 0; i < startItems.length; i++) {
   startItems[i].addEventListener("click", function (e) {
-    if (document.querySelector(".selected")) {
-      document.querySelector(".selected").classList.remove("selected");
+    if (startLocationSuggestions.querySelector(".selected")) {
+      startLocationSuggestions
+        .querySelector(".selected")
+        .classList.remove("selected");
     }
     startItems[i].classList.add("selected");
   });
@@ -151,8 +153,10 @@ for (let i = 0; i < startItems.length; i++) {
 
 for (let i = 0; i < destItems.length; i++) {
   destItems[i].addEventListener("click", function (e) {
-    if (document.querySelector(".selected")) {
-      document.querySelector(".selected").classList.remove("selected");
+    if (destLocationSuggestions.querySelector(".selected")) {
+      destLocationSuggestions
+        .querySelector(".selected")
+        .classList.remove("selected");
     }
     destItems[i].classList.add("selected");
   });
