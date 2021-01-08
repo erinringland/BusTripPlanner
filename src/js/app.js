@@ -35,12 +35,19 @@ function startingPoint(start) {
     .then((startLocation) => {
       let startLocationsArr = [];
       startLocation.features.forEach((location) => {
-        let startTitle = location.place_name;
+        // Name
+        let titleObj = location.place_name;
+        titleObj = titleObj.split(",", 1);
+        let startTitle = titleObj.toString();
+        // Location/Address
+        let startAddress = location.place_name;
+        startAddress = startAddress.split(",");
         let startLong = location.center[0];
         let startLat = location.center[1];
 
         startLocationsArr.push({
           title: startTitle,
+          address: startAddress[1],
           lat: startLat,
           long: startLong,
         });
@@ -64,13 +71,12 @@ function destinationPoint(final) {
 
 function displayStartResults(startResults) {
   startResults.forEach((results) => {
-    console.log(results);
     startLocationSuggestions.insertAdjacentHTML(
       "beforeend",
       `
       <li data-long="${results.long}" data-lat="${results.lat}">
         <div class="name">${results.title}</div>
-        <div>1845 Pembina Hwy</div>
+        <div>${results.address}</div>
       </li>`
     );
   });
@@ -97,3 +103,8 @@ destLocation.addEventListener("submit", function (e) {
   }
   destLocation[0].value = "";
 });
+
+// let address = "St. Vital North, R2M 3P6, Winnipeg, Manitoba, Canada";
+// address = address.split(",");
+// // let titleString = titleObj.toString();
+// console.log(typeof address[1]);
