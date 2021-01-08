@@ -63,7 +63,28 @@ function destinationPoint(final) {
   let finalAPIURL = mapAPIURL + final + mapAPILimit + mapAPIBB + mapAPIKey;
   fetch(finalAPIURL)
     .then((response) => response.json())
-    .then((finalLocation) => console.log(finalLocation.features))
+    .then((finalLocation) => {
+      let finalLocationArr = [];
+      finalLocation.features.forEach((destination) => {
+        // Name
+        let titleObj = destination.place_name;
+        titleObj = titleObj.split(",", 1);
+        let destTitle = titleObj.toString();
+        // Location/Address
+        let destAddress = destination.place_name;
+        destAddress = destAddress.split(",");
+        let destLong = destination.center[0];
+        let destLat = destination.center[1];
+
+        finalLocationArr.push({
+          title: destTitle,
+          address: destAddress[1],
+          lat: destLat,
+          long: destLong,
+        });
+      });
+      displayDestinationResults(finalLocationArr);
+    })
     .catch(function () {
       alert("API Failed, please refresh the page and try again");
     });
@@ -72,6 +93,19 @@ function destinationPoint(final) {
 function displayStartResults(startResults) {
   startResults.forEach((results) => {
     startLocationSuggestions.insertAdjacentHTML(
+      "beforeend",
+      `
+      <li data-long="${results.long}" data-lat="${results.lat}">
+        <div class="name">${results.title}</div>
+        <div>${results.address}</div>
+      </li>`
+    );
+  });
+}
+
+function displayDestinationResults(destResults) {
+  destResults.forEach((results) => {
+    destLocationSuggestions.insertAdjacentHTML(
       "beforeend",
       `
       <li data-long="${results.long}" data-lat="${results.lat}">
@@ -103,8 +137,3 @@ destLocation.addEventListener("submit", function (e) {
   }
   destLocation[0].value = "";
 });
-
-// let address = "St. Vital North, R2M 3P6, Winnipeg, Manitoba, Canada";
-// address = address.split(",");
-// // let titleString = titleObj.toString();
-// console.log(typeof address[1]);
