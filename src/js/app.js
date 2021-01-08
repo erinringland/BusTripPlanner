@@ -1,7 +1,9 @@
 const startLocation = document.querySelector(".origin-form");
 const startLocationSuggestions = document.querySelector(".origins");
+const startItems = document.querySelectorAll(".origins li");
 const destLocation = document.querySelector(".destination-form");
 const destLocationSuggestions = document.querySelector(".destinations");
+const destItems = document.querySelectorAll(".destinations li");
 const tripResult = document.querySelector(".bus-container");
 
 const mapAPIURL = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
@@ -116,7 +118,7 @@ function displayDestinationResults(destResults) {
   });
 }
 
-clearPage();
+// clearPage();
 
 startLocation.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -137,3 +139,21 @@ destLocation.addEventListener("submit", function (e) {
   }
   destLocation[0].value = "";
 });
+
+for (let i = 0; i < startItems.length; i++) {
+  startItems[i].addEventListener("click", function (e) {
+    if (document.querySelector(".selected")) {
+      document.querySelector(".selected").classList.remove("selected");
+    }
+    startItems[i].classList.add("selected");
+  });
+}
+
+for (let i = 0; i < destItems.length; i++) {
+  destItems[i].addEventListener("click", function (e) {
+    if (document.querySelector(".selected")) {
+      document.querySelector(".selected").classList.remove("selected");
+    }
+    destItems[i].classList.add("selected");
+  });
+}
