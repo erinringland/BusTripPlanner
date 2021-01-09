@@ -110,40 +110,98 @@ function displayDestinationResults(destResults) {
   });
 }
 
-function tripPlanner(startLat, startLong, destLat, destLong) {
-  let startCoord = startLat + "," + startLong;
-  let destCoord = destLat + "," + destLong;
-  let finalBusAPIURL =
-    busAPIURL + busAPIorigin + startCoord + busAPIdest + destCoord;
-  fetch(finalBusAPIURL)
-    .then((response) => response.json())
-    .then((trips) => {
-      if (trips.plans.length === 0) {
-        console.log("There are no results!");
-      }
-      let recommendedTrip = trips.plans.shift();
-      let altTrips = trips.plans;
+// function tripPlanner(startLat, startLong, destLat, destLong) {
+//   let startCoord = startLat + "," + startLong;
+//   let destCoord = destLat + "," + destLong;
+//   let finalBusAPIURL =
+//     busAPIURL + busAPIorigin + startCoord + busAPIdest + destCoord;
+//   fetch(finalBusAPIURL)
+//     .then((response) => response.json())
+//     .then((trips) => tripResultLogic(trips))
+//     .catch(function () {
+//       alert("API Key not working, please refresh the page");
+//     });
+// }
 
-      console.log(recommendedTrip.segments);
-      recommendedTrip.segments.forEach((directions) => {
-        console.log(directions.type);
-        if (directions.type === "walk") {
-          console.log("Walk bitch");
-        }
-        if (directions.type === "transfer") {
-          console.log("transfer!!!");
-        }
-        if (directions.type === "ride") {
-          console.log("horse");
-        }
-      });
+const tripResults = (callback) => {
+  const request = new XMLHttpRequest();
 
-      // console.log(altTrips);
-      // altTrips.forEach((altTripResults) => console.log(altTripResults))
-    });
+  request.addEventListener('readystatechange', () => {
+    if(request.readyState === 4 && request.status === 200){
+      callback(undefined, JSON.parse(request.responseText));
+    } else if(request.readyState === 4){
+      callback('Error!', undefined);
+    }
+  })
+
+  request.open('GET', 'js/data/trip-planner.json');
+  request.send(); 
 }
 
-tripPlanner(49.8638714, -97.1848822, 49.8093036, -97.1356527);
+tripResults((error, data) => {
+  if(error){
+    console.log(error);
+  } else{
+    tripResultLogic(data);
+  }
+});
+
+function tripResultLogic(trips) {
+  // console.log(trips[0].plans)
+  if (trips[0].plans[0].length === 0) {
+    console.log("There are no results!");
+  }
+
+  let recommendedTrip = trips[0].plans.shift();
+  let altTrips = trips[0].plans;
+
+  // console.log(recommendedTrip.segments);
+  let recTripArr = [];
+  recommendedTrip.segments.forEach((directions) => {
+    if (directions.type === "walk") {
+      let recWalkOne = [];
+      let recWalkTwo = [];
+      recWalkOne.push({
+        title: directions.type,
+        duration: directions.times.durations.total,
+        icon: "fa-walking",
+      });
+      if (directions.to.stop) {
+        recWalkTwo.push({
+          nextStopKey: directions.to.stop.key,
+          nextStopName: directions.to.stop.name,
+        });
+      }
+      let allWalk = recWalkOne.concat(recWalkTwo);
+      recTripArr.push(allWalk)
+    }
+    if (directions.type === "transfer") {
+      recTripArr.push({
+        title: directions.type,
+        transferKey: directions.from.stop.key,
+        transferStopName: directions.from.stop.name,
+        newKey: directions.to.stop.key,
+        newStopName: directions.to.stop.name,
+        icon: "fa-ticket-alt",
+      });
+    }
+    if (directions.type === "ride") {
+      recTripArr.push({
+        title: directions.type,
+        rideRoute: directions.route.name,
+        rideDuration: directions.times.durations.total,
+        icon: "fa-bus",
+      });
+    }
+  });
+
+  // console.log(recTripArr);
+
+  console.log(altTrips);
+  altTrips.forEach((altTripResults) => console.log(altTripResults))
+}
+
+// tripPlanner(49.8638714, -97.1848822, 49.868044, -97.1799357);
 // clearPage();
 
 startLocation.addEventListener("submit", function (e) {
