@@ -157,7 +157,7 @@ function tripPlanner(startLat, startLong, destLat, destLong) {
       altTripLogic(trips.plans);
     })
     .catch(function () {
-      alert("API Key not working, please refresh the page");
+      alert("Please enter a location inside Winnipeg!");
     });
 }
 
@@ -200,13 +200,12 @@ function recTripLogic(recTrip) {
       });
     }
   });
-  console.log(recTripArr);
+  displayRecTripResults(recTripArr);
 }
 
 function altTripLogic(altTrips) {
   let altTripsArr = [];
   altTrips.forEach((altTripResults) => {
-    // console.log(altTripResults.segments);
     let altSingleTripArr = [];
     altTripResults.segments.forEach((altTripResultItems) => {
       if (altTripResultItems.type === "walk") {
@@ -247,7 +246,17 @@ function altTripLogic(altTrips) {
     });
     altTripsArr.push(altSingleTripArr);
   });
-  console.log(altTripsArr);
+  // console.log(altTripsArr);
+}
+
+function displayRecTripResults(recTripResults) {
+  console.log(recTripResults);
+  for (let i = 0; i < recTripResults.length; i++) {
+    console.log(recTripResults[i]);
+  }
+  // recTripResults.forEach((result) => {
+  //   console.log(result)
+  // })
 }
 
 clearPage();
@@ -296,4 +305,6 @@ tripButton.addEventListener("click", function () {
   }
 
   tripPlanner(ogLat, ogLong, destLat, destLong);
+  startLocationSuggestions.innerHTML = ``;
+  destLocationSuggestions.innerHTML = ``;
 });
