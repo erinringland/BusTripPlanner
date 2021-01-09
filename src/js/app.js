@@ -6,7 +6,7 @@ const destLocationSuggestions = document.querySelector(".destinations");
 const destItems = document.querySelectorAll(".destinations li");
 const tripButton = document.querySelector(".plan-trip");
 const tripResultContainer = document.querySelector(".bus-container");
-const tripResult = document.querySelector(".my-trip");
+const recTripResult = document.querySelector(".rec-trip");
 
 const mapAPIURL = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
 const mapAPIBB = "&bbox=-97.325875,49.766204,-96.953987,49.99275";
@@ -21,7 +21,7 @@ const busAPIdest = "&destination=geo/";
 function clearPage() {
   startLocationSuggestions.innerHTML = "";
   destLocationSuggestions.innerHTML = "";
-  tripResult.innerHTML = "";
+  tripResultContainer.innerHTML = "";
 }
 
 function startingPoint(start) {
@@ -156,34 +156,38 @@ function tripPlanner(startLat, startLong, destLat, destLong) {
 
       recTripLogic(trips.plans.shift());
       altTripLogic(trips.plans);
+    })
+    .catch(function () {
+      console.log("Please enter a location inside Winnipeg!");
     });
-  // .catch(function () {
-  //   alert("Please enter a location inside Winnipeg!");
-  // });
 }
 
 function recTripLogic(recTrip) {
   if (recTrip.segments.length > 1) {
     tripResultContainer.insertAdjacentHTML(
       "afterbegin",
-      `<h1>Recommended Trip</h1>`
+      `<h1>Recommended Trip</h1>
+      <ul class="rec-trip">
+      </ul>`
     );
   }
   recTrip.segments.forEach((item) => {
+    const recTripResult = document.querySelector(".rec-trip");
+
     if (item.type === "walk") {
       if (item.to.stop) {
         let walkDuration = item.times.durations.total;
         let walkStopKey = item.to.stop.key;
         let walkStopName = item.to.stop.name;
-        tripResult.insertAdjacentHTML(
+        recTripResult.insertAdjacentHTML(
           "beforeend",
           `<li> <i class="fas fa-walking" aria-hidden="true"></i>Walk for ${walkDuration} minutes to stop #${walkStopKey} - ${walkStopName} </li>`
         );
       } else {
         let walkDuration = item.times.durations.total;
-        tripResult.insertAdjacentHTML(
+        recTripResult.insertAdjacentHTML(
           "beforeend",
-          `<li><i class="fas fa-walking" aria-hidden="true"></i>Walk for ${walkDuration} minutes</li>`
+          `<li><i class="fas fa-walking" aria-hidden="true"></i>Walk for ${walkDuration} minutes to your destination</li>`
         );
       }
     }
@@ -192,7 +196,7 @@ function recTripLogic(recTrip) {
       let transferStopName = item.from.stop.name;
       let transferNewKey = item.to.stop.key;
       let transferNewStopName = item.to.stop.name;
-      tripResult.insertAdjacentHTML(
+      recTripResult.insertAdjacentHTML(
         "beforeend",
         `<li> <i class="fas fa-ticket-alt" aria-hidden="true"></i>Transfer from stop #${transferKey} - ${transferStopName} to stop #${transferNewKey} - ${transferNewStopName}</li>`
       );
@@ -200,7 +204,7 @@ function recTripLogic(recTrip) {
     if (item.type === "ride") {
       let rideRoute = item.route.name;
       let rideDuration = item.times.durations.total;
-      tripResult.insertAdjacentHTML(
+      recTripResult.insertAdjacentHTML(
         "beforeend",
         `<li><i class="fas fa-bus" aria-hidden="true"></i>Ride the ${rideRoute} for ${rideDuration} minutes.</li>`
       );
@@ -209,7 +213,59 @@ function recTripLogic(recTrip) {
 }
 
 function altTripLogic(altTrips) {
-  console.log(altTrips)
+  if (altTrips.length > 0) {
+    tripResultContainer.insertAdjacentHTML(
+      "beforeend",
+      `<h1>Alternate Trip(s)</h1>
+        <ul class="alt-trip">
+        </ul>`
+    );
+  }
+  let tripCounter = 1;
+  altTrips.forEach((altTripItems) => {
+    const altTripResult = document.querySelector(".alt-trip");
+    altTripResult.insertAdjacentHTML(
+      "beforeend",
+      `<li><strong>Alternate Trip ${tripCounter++}</strong></li>`
+    );
+    altTripItems.segments.forEach((item) => {
+      if (item.type === "walk") {
+        if (item.to.stop) {
+          let walkDuration = item.times.durations.total;
+          let walkStopKey = item.to.stop.key;
+          let walkStopName = item.to.stop.name;
+          altTripResult.insertAdjacentHTML(
+            "beforeend",
+            `<li> <i class="fas fa-walking" aria-hidden="true"></i>Walk for ${walkDuration} minutes to stop #${walkStopKey} - ${walkStopName} </li>`
+          );
+        } else {
+          let walkDuration = item.times.durations.total;
+          altTripResult.insertAdjacentHTML(
+            "beforeend",
+            `<li><i class="fas fa-walking" aria-hidden="true"></i>Walk for ${walkDuration} minutes to your destination</li>`
+          );
+        }
+      }
+      if (item.type === "transfer") {
+        let transferKey = item.from.stop.key;
+        let transferStopName = item.from.stop.name;
+        let transferNewKey = item.to.stop.key;
+        let transferNewStopName = item.to.stop.name;
+        altTripResult.insertAdjacentHTML(
+          "beforeend",
+          `<li> <i class="fas fa-ticket-alt" aria-hidden="true"></i>Transfer from stop #${transferKey} - ${transferStopName} to stop #${transferNewKey} - ${transferNewStopName}</li>`
+        );
+      }
+      if (item.type === "ride") {
+        let rideRoute = item.route.name;
+        let rideDuration = item.times.durations.total;
+        altTripResult.insertAdjacentHTML(
+          "beforeend",
+          `<li><i class="fas fa-bus" aria-hidden="true"></i>Ride the ${rideRoute} for ${rideDuration} minutes.</li>`
+        );
+      }
+    });
+  });
 }
 
 clearPage();
@@ -260,5 +316,5 @@ tripButton.addEventListener("click", function () {
   tripPlanner(ogLat, ogLong, destLat, destLong);
   startLocationSuggestions.innerHTML = ``;
   destLocationSuggestions.innerHTML = ``;
-  tripResult.innerHTML = "";
+  tripResultContainer.innerHTML = "";
 });
