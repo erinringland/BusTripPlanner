@@ -4,6 +4,7 @@ const startItems = document.querySelectorAll(".origins li");
 const destLocation = document.querySelector(".destination-form");
 const destLocationSuggestions = document.querySelector(".destinations");
 const destItems = document.querySelectorAll(".destinations li");
+const tripButton = document.querySelector(".plan-trip");
 const tripResult = document.querySelector(".bus-container");
 
 const mapAPIURL = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
@@ -110,52 +111,34 @@ function displayDestinationResults(destResults) {
   });
 }
 
-// function tripPlanner(startLat, startLong, destLat, destLong) {
-//   let startCoord = startLat + "," + startLong;
-//   let destCoord = destLat + "," + destLong;
-//   let finalBusAPIURL =
-//     busAPIURL + busAPIorigin + startCoord + busAPIdest + destCoord;
-//   fetch(finalBusAPIURL)
-//     .then((response) => response.json())
-//     .then((trips) => tripResultLogic(trips))
-//     .catch(function () {
-//       alert("API Key not working, please refresh the page");
-//     });
-// }
-
-const tripResults = (callback) => {
-  const request = new XMLHttpRequest();
-
-  request.addEventListener('readystatechange', () => {
-    if(request.readyState === 4 && request.status === 200){
-      callback(undefined, JSON.parse(request.responseText));
-    } else if(request.readyState === 4){
-      callback('Error!', undefined);
-    }
-  })
-
-  request.open('GET', 'js/data/trip-planner.json');
-  request.send(); 
+function tripPlanner(startLat, startLong, destLat, destLong) {
+  let startCoord = startLat + "," + startLong;
+  let destCoord = destLat + "," + destLong;
+  let finalBusAPIURL =
+    busAPIURL + busAPIorigin + startCoord + busAPIdest + destCoord;
+  console.log(finalBusAPIURL);
+  // fetch(finalBusAPIURL)
+  //   .then((response) => response.json())
+  //   .then((trips) => tripResultLogic(trips))
+  //   .catch(function () {
+  //     alert("API Key not working, please refresh the page");
+  //   });
 }
 
-tripResults((error, data) => {
-  if(error){
-    console.log(error);
-  } else{
-    tripResultLogic(data);
-  }
-});
-
 function tripResultLogic(trips) {
-  // console.log(trips[0].plans)
-  if (trips[0].plans[0].length === 0) {
+  if (trips.plans.length === 0) {
     console.log("There are no results!");
   }
+  let recommendedTrip = trips.plans.shift();
+  let altTrips = trips.plans;
 
-  let recommendedTrip = trips[0].plans.shift();
-  let altTrips = trips[0].plans;
+  // if (
+  //   recommendedTrip.segments.length === 1 ||
+  //   altTrips[0].segments.length === 1
+  // ) {
+  //   console.log("Nope");
+  // }
 
-  // console.log(recommendedTrip.segments);
   let recTripArr = [];
   recommendedTrip.segments.forEach((directions) => {
     if (directions.type === "walk") {
@@ -173,7 +156,7 @@ function tripResultLogic(trips) {
         });
       }
       let allWalk = recWalkOne.concat(recWalkTwo);
-      recTripArr.push(allWalk)
+      recTripArr.push(allWalk);
     }
     if (directions.type === "transfer") {
       recTripArr.push({
@@ -195,13 +178,18 @@ function tripResultLogic(trips) {
     }
   });
 
-  // console.log(recTripArr);
+  console.log(recTripArr);
 
-  console.log(altTrips);
-  altTrips.forEach((altTripResults) => console.log(altTripResults))
+  let altTripsArr = [];
+  altTrips.forEach((altTripResults) => {
+    console.log(altTripResults.segments);
+    altTripResults.segments.forEach((altTripResultItems) => {
+      console.log(altTripResultItems);
+    });
+  });
 }
 
-// tripPlanner(49.8638714, -97.1848822, 49.868044, -97.1799357);
+// tripPlanner(49.8638714, -97.1848822, 49.8577443, -97.1800934);
 // clearPage();
 
 startLocation.addEventListener("submit", function (e) {
@@ -245,3 +233,28 @@ for (let i = 0; i < destItems.length; i++) {
     destItems[i].classList.add("selected");
   });
 }
+
+tripButton.addEventListener("click", function () {
+  let startCoord = startLocationSuggestions.getElementsByClassName("selected");
+  let destCoord = destLocationSuggestions.getElementsByClassName("selected");
+  let ogLong;
+  let ogLat;
+  let destLong;
+  let destLat;
+
+  if (startCoord[0] === undefined) {
+    console.log("Select an origin");
+  } else {
+    ogLong = startCoord[0].attributes[0].value;
+    ogLat = startCoord[0].attributes[1].value;
+  }
+
+  if (destCoord[0] === undefined) {
+    console.log("Select a destination");
+  } else {
+    destLong = destCoord[0].attributes[0].value;
+    destLat = destCoord[0].attributes[1].value;
+  }
+
+  tripPlanner(ogLat, ogLong, destLat, destLong);
+});
