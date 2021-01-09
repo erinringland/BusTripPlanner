@@ -100,7 +100,7 @@ function displayStartResults(startResults) {
 }
 
 function selectStartLocation() {
-  let newStartItems = document.querySelectorAll(".origins li")
+  let newStartItems = document.querySelectorAll(".origins li");
   newStartItems.forEach((element) => {
     element.addEventListener("click", function (e) {
       if (startLocationSuggestions.querySelector(".selected")) {
@@ -110,7 +110,7 @@ function selectStartLocation() {
       }
       element.classList.add("selected");
     });
-  })
+  });
 }
 
 function displayDestinationResults(destResults) {
@@ -127,8 +127,8 @@ function displayDestinationResults(destResults) {
   selectDestLocation();
 }
 
-function selectDestLocation(){
-  let newDestItems = document.querySelectorAll(".destinations li")
+function selectDestLocation() {
+  let newDestItems = document.querySelectorAll(".destinations li");
   newDestItems.forEach((element) => {
     element.addEventListener("click", function (e) {
       if (destLocationSuggestions.querySelector(".selected")) {
@@ -138,7 +138,7 @@ function selectDestLocation(){
       }
       element.classList.add("selected");
     });
-  })
+  });
 }
 
 function tripPlanner(startLat, startLong, destLat, destLong) {
@@ -146,31 +146,24 @@ function tripPlanner(startLat, startLong, destLat, destLong) {
   let destCoord = destLat + "," + destLong;
   let finalBusAPIURL =
     busAPIURL + busAPIorigin + startCoord + busAPIdest + destCoord;
-  console.log(finalBusAPIURL);
-  // fetch(finalBusAPIURL)
-  //   .then((response) => response.json())
-  //   .then((trips) => tripResultLogic(trips))
-  //   .catch(function () {
-  //     alert("API Key not working, please refresh the page");
-  //   });
+  fetch(finalBusAPIURL)
+    .then((response) => response.json())
+    .then((trips) => {
+      if (trips.plans.length === 0) {
+        console.log("There are no results!");
+      }
+
+      recTripLogic(trips.plans.shift());
+      altTripLogic(trips.plans);
+    })
+    .catch(function () {
+      alert("API Key not working, please refresh the page");
+    });
 }
 
-function tripResultLogic(trips) {
-  if (trips.plans.length === 0) {
-    console.log("There are no results!");
-  }
-  let recommendedTrip = trips.plans.shift();
-  let altTrips = trips.plans;
-
-  // if (
-  //   recommendedTrip.segments.length === 1 ||
-  //   altTrips[0].segments.length === 1
-  // ) {
-  //   console.log("Nope");
-  // }
-
+function recTripLogic(recTrip) {
   let recTripArr = [];
-  recommendedTrip.segments.forEach((directions) => {
+  recTrip.segments.forEach((directions) => {
     if (directions.type === "walk") {
       let recWalkOne = [];
       let recWalkTwo = [];
@@ -207,16 +200,54 @@ function tripResultLogic(trips) {
       });
     }
   });
-
   console.log(recTripArr);
+}
 
+function altTripLogic(altTrips) {
   let altTripsArr = [];
   altTrips.forEach((altTripResults) => {
-    console.log(altTripResults.segments);
+    // console.log(altTripResults.segments);
+    let altSingleTripArr = [];
     altTripResults.segments.forEach((altTripResultItems) => {
-      console.log(altTripResultItems);
+      if (altTripResultItems.type === "walk") {
+        let recWalkOne = [];
+        let recWalkTwo = [];
+        recWalkOne.push({
+          title: altTripResultItems.type,
+          duration: altTripResultItems.times.durations.total,
+          icon: "fa-walking",
+        });
+        if (altTripResultItems.to.stop) {
+          recWalkTwo.push({
+            nextStopKey: altTripResultItems.to.stop.key,
+            nextStopName: altTripResultItems.to.stop.name,
+          });
+        }
+        let allWalk = recWalkOne.concat(recWalkTwo);
+        altSingleTripArr.push(allWalk);
+      }
+      if (altTripResultItems.type === "transfer") {
+        altSingleTripArr.push({
+          title: altTripResultItems.type,
+          transferKey: altTripResultItems.from.stop.key,
+          transferStopName: altTripResultItems.from.stop.name,
+          newKey: altTripResultItems.to.stop.key,
+          newStopName: altTripResultItems.to.stop.name,
+          icon: "fa-ticket-alt",
+        });
+      }
+      if (altTripResultItems.type === "ride") {
+        altSingleTripArr.push({
+          title: altTripResultItems.type,
+          rideRoute: altTripResultItems.route.name,
+          rideDuration: altTripResultItems.times.durations.total,
+          icon: "fa-bus",
+        });
+      }
     });
+    altTripsArr.push(altSingleTripArr);
   });
+  console.log(altTripsArr);
 }
 
 clearPage();
@@ -241,17 +272,6 @@ destLocation.addEventListener("submit", function (e) {
   }
   destLocation[0].value = "";
 });
-
-// for (let i = 0; i < destItems.length; i++) {
-//   destItems[i].addEventListener("click", function () {
-//     if (destLocationSuggestions.querySelector(".selected")) {
-//       destLocationSuggestions
-//         .querySelector(".selected")
-//         .classList.remove("selected");
-//     }
-//     destItems[i].classList.add("selected");
-//   });
-// }
 
 tripButton.addEventListener("click", function () {
   let startCoord = startLocationSuggestions.getElementsByClassName("selected");
