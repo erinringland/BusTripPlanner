@@ -5,7 +5,8 @@ const destLocation = document.querySelector(".destination-form");
 const destLocationSuggestions = document.querySelector(".destinations");
 const destItems = document.querySelectorAll(".destinations li");
 const tripButton = document.querySelector(".plan-trip");
-const tripResult = document.querySelector(".bus-container");
+const tripResultContainer = document.querySelector(".bus-container");
+const tripResult = document.querySelector(".my-trip");
 
 const mapAPIURL = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
 const mapAPIBB = "&bbox=-97.325875,49.766204,-96.953987,49.99275";
@@ -155,108 +156,60 @@ function tripPlanner(startLat, startLong, destLat, destLong) {
 
       recTripLogic(trips.plans.shift());
       altTripLogic(trips.plans);
-    })
-    .catch(function () {
-      alert("Please enter a location inside Winnipeg!");
     });
+  // .catch(function () {
+  //   alert("Please enter a location inside Winnipeg!");
+  // });
 }
 
 function recTripLogic(recTrip) {
-  let recTripArr = [];
-  recTrip.segments.forEach((directions) => {
-    if (directions.type === "walk") {
-      let recWalkOne = [];
-      let recWalkTwo = [];
-      recWalkOne.push({
-        title: directions.type,
-        duration: directions.times.durations.total,
-        icon: "fa-walking",
-      });
-      if (directions.to.stop) {
-        recWalkTwo.push({
-          nextStopKey: directions.to.stop.key,
-          nextStopName: directions.to.stop.name,
-        });
+  if (recTrip.segments.length > 1) {
+    tripResultContainer.insertAdjacentHTML(
+      "afterbegin",
+      `<h1>Recommended Trip</h1>`
+    );
+  }
+  recTrip.segments.forEach((item) => {
+    if (item.type === "walk") {
+      if (item.to.stop) {
+        let walkDuration = item.times.durations.total;
+        let walkStopKey = item.to.stop.key;
+        let walkStopName = item.to.stop.name;
+        tripResult.insertAdjacentHTML(
+          "beforeend",
+          `<li> <i class="fas fa-walking" aria-hidden="true"></i>Walk for ${walkDuration} minutes to stop #${walkStopKey} - ${walkStopName} </li>`
+        );
+      } else {
+        let walkDuration = item.times.durations.total;
+        tripResult.insertAdjacentHTML(
+          "beforeend",
+          `<li><i class="fas fa-walking" aria-hidden="true"></i>Walk for ${walkDuration} minutes</li>`
+        );
       }
-      let allWalk = recWalkOne.concat(recWalkTwo);
-      recTripArr.push(allWalk);
     }
-    if (directions.type === "transfer") {
-      recTripArr.push({
-        title: directions.type,
-        transferKey: directions.from.stop.key,
-        transferStopName: directions.from.stop.name,
-        newKey: directions.to.stop.key,
-        newStopName: directions.to.stop.name,
-        icon: "fa-ticket-alt",
-      });
+    if (item.type === "transfer") {
+      let transferKey = item.from.stop.key;
+      let transferStopName = item.from.stop.name;
+      let transferNewKey = item.to.stop.key;
+      let transferNewStopName = item.to.stop.name;
+      tripResult.insertAdjacentHTML(
+        "beforeend",
+        `<li> <i class="fas fa-ticket-alt" aria-hidden="true"></i>Transfer from stop #${transferKey} - ${transferStopName} to stop #${transferNewKey} - ${transferNewStopName}</li>`
+      );
     }
-    if (directions.type === "ride") {
-      recTripArr.push({
-        title: directions.type,
-        rideRoute: directions.route.name,
-        rideDuration: directions.times.durations.total,
-        icon: "fa-bus",
-      });
+    if (item.type === "ride") {
+      let rideRoute = item.route.name;
+      let rideDuration = item.times.durations.total;
+      tripResult.insertAdjacentHTML(
+        "beforeend",
+        `<li><i class="fas fa-bus" aria-hidden="true"></i>Ride the ${rideRoute} for ${rideDuration} minutes.</li>`
+      );
     }
   });
-  displayRecTripResults(recTripArr);
 }
 
 function altTripLogic(altTrips) {
-  let altTripsArr = [];
-  altTrips.forEach((altTripResults) => {
-    let altSingleTripArr = [];
-    altTripResults.segments.forEach((altTripResultItems) => {
-      if (altTripResultItems.type === "walk") {
-        let recWalkOne = [];
-        let recWalkTwo = [];
-        recWalkOne.push({
-          title: altTripResultItems.type,
-          duration: altTripResultItems.times.durations.total,
-          icon: "fa-walking",
-        });
-        if (altTripResultItems.to.stop) {
-          recWalkTwo.push({
-            nextStopKey: altTripResultItems.to.stop.key,
-            nextStopName: altTripResultItems.to.stop.name,
-          });
-        }
-        let allWalk = recWalkOne.concat(recWalkTwo);
-        altSingleTripArr.push(allWalk);
-      }
-      if (altTripResultItems.type === "transfer") {
-        altSingleTripArr.push({
-          title: altTripResultItems.type,
-          transferKey: altTripResultItems.from.stop.key,
-          transferStopName: altTripResultItems.from.stop.name,
-          newKey: altTripResultItems.to.stop.key,
-          newStopName: altTripResultItems.to.stop.name,
-          icon: "fa-ticket-alt",
-        });
-      }
-      if (altTripResultItems.type === "ride") {
-        altSingleTripArr.push({
-          title: altTripResultItems.type,
-          rideRoute: altTripResultItems.route.name,
-          rideDuration: altTripResultItems.times.durations.total,
-          icon: "fa-bus",
-        });
-      }
-    });
-    altTripsArr.push(altSingleTripArr);
-  });
-  // console.log(altTripsArr);
-}
-
-function displayRecTripResults(recTripResults) {
-  console.log(recTripResults);
-  for (let i = 0; i < recTripResults.length; i++) {
-    console.log(recTripResults[i]);
-  }
-  // recTripResults.forEach((result) => {
-  //   console.log(result)
-  // })
+  console.log(altTrips)
 }
 
 clearPage();
@@ -307,4 +260,5 @@ tripButton.addEventListener("click", function () {
   tripPlanner(ogLat, ogLong, destLat, destLong);
   startLocationSuggestions.innerHTML = ``;
   destLocationSuggestions.innerHTML = ``;
+  tripResult.innerHTML = "";
 });
