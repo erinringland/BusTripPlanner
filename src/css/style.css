@@ -19,18 +19,21 @@ ul {
   padding: 0;
 }
 
-.origins > li, .destinations > li {
+.origins > li,
+.destinations > li {
   padding: 20px 20px;
   border: 1px solid #d3d3d3;
   margin: 5px 0;
 }
 
-.origins > li:hover, .destinations > li:hover{
+.origins > li:hover,
+.destinations > li:hover {
   background-color: #efefef;
   cursor: pointer;
 }
 
-.origins > li.selected, .destinations > li.selected {
+.origins > li.selected,
+.destinations > li.selected {
   background-color: #f2f3ff;
 }
 
@@ -66,13 +69,17 @@ input:focus {
   margin: auto;
 }
 
-.my-trip li {
+.my-trip li,
+.rec-trip li,
+.alt-trip li {
   margin: 10px 0px;
   font-size: 17px;
   display: flex;
 }
 
-.my-trip i {
+.my-trip i,
+.rec-trip i,
+.alt-trip i {
   margin-right: 15px;
   font-size: 25px;
   align-self: center;
