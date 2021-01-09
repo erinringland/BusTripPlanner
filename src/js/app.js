@@ -96,6 +96,21 @@ function displayStartResults(startResults) {
       </li>`
     );
   });
+  selectStartLocation();
+}
+
+function selectStartLocation() {
+  let newStartItems = document.querySelectorAll(".origins li")
+  newStartItems.forEach((element) => {
+    element.addEventListener("click", function (e) {
+      if (startLocationSuggestions.querySelector(".selected")) {
+        startLocationSuggestions
+          .querySelector(".selected")
+          .classList.remove("selected");
+      }
+      element.classList.add("selected");
+    });
+  })
 }
 
 function displayDestinationResults(destResults) {
@@ -109,6 +124,21 @@ function displayDestinationResults(destResults) {
       </li>`
     );
   });
+  selectDestLocation();
+}
+
+function selectDestLocation(){
+  let newDestItems = document.querySelectorAll(".destinations li")
+  newDestItems.forEach((element) => {
+    element.addEventListener("click", function (e) {
+      if (destLocationSuggestions.querySelector(".selected")) {
+        destLocationSuggestions
+          .querySelector(".selected")
+          .classList.remove("selected");
+      }
+      element.classList.add("selected");
+    });
+  })
 }
 
 function tripPlanner(startLat, startLong, destLat, destLong) {
@@ -189,8 +219,7 @@ function tripResultLogic(trips) {
   });
 }
 
-// tripPlanner(49.8638714, -97.1848822, 49.8577443, -97.1800934);
-// clearPage();
+clearPage();
 
 startLocation.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -200,6 +229,7 @@ startLocation.addEventListener("submit", function (e) {
     startingPoint(startLocation[0].value);
   }
   startLocation[0].value = "";
+  // console.log(startItems)
 });
 
 destLocation.addEventListener("submit", function (e) {
@@ -212,27 +242,16 @@ destLocation.addEventListener("submit", function (e) {
   destLocation[0].value = "";
 });
 
-for (let i = 0; i < startItems.length; i++) {
-  startItems[i].addEventListener("click", function () {
-    if (startLocationSuggestions.querySelector(".selected")) {
-      startLocationSuggestions
-        .querySelector(".selected")
-        .classList.remove("selected");
-    }
-    startItems[i].classList.add("selected");
-  });
-}
-
-for (let i = 0; i < destItems.length; i++) {
-  destItems[i].addEventListener("click", function () {
-    if (destLocationSuggestions.querySelector(".selected")) {
-      destLocationSuggestions
-        .querySelector(".selected")
-        .classList.remove("selected");
-    }
-    destItems[i].classList.add("selected");
-  });
-}
+// for (let i = 0; i < destItems.length; i++) {
+//   destItems[i].addEventListener("click", function () {
+//     if (destLocationSuggestions.querySelector(".selected")) {
+//       destLocationSuggestions
+//         .querySelector(".selected")
+//         .classList.remove("selected");
+//     }
+//     destItems[i].classList.add("selected");
+//   });
+// }
 
 tripButton.addEventListener("click", function () {
   let startCoord = startLocationSuggestions.getElementsByClassName("selected");
