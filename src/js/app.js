@@ -225,7 +225,7 @@ function altTripLogic(altTrips) {
   if (altTrips.length > 0) {
     tripResultContainer.insertAdjacentHTML(
       "beforeend",
-      `<h1>Alternate Trip(s)</h1>
+      `<h1>Alternate Trips</h1>
         <ul class="alt-trip">
         </ul>`
     );
