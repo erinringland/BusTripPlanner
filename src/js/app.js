@@ -49,10 +49,10 @@ function startingPoint(start) {
         });
       });
       displayStartResults(startLocationsArr);
+    })
+    .catch(function () {
+      alert("API Failed, please refresh the page and try again");
     });
-  // .catch(function () {
-  //   alert("API Failed, please refresh the page and try again");
-  // });
 }
 
 function destinationPoint(final) {
@@ -80,10 +80,10 @@ function destinationPoint(final) {
         });
       });
       displayDestinationResults(finalLocationArr);
+    })
+    .catch(function () {
+      alert("API Failed, please refresh the page and try again");
     });
-  // .catch(function () {
-  //   alert("API Failed, please refresh the page and try again");
-  // });
 }
 
 function displayStartResults(startResults) {
