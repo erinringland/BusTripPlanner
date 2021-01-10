@@ -82,7 +82,7 @@ function destinationPoint(final) {
       displayDestinationResults(finalLocationArr);
     });
   // .catch(function () {
-  //   alert("API failed, please refresh the page and try again");
+  //   alert("API Failed, please refresh the page and try again");
   // });
 }
 
@@ -159,7 +159,7 @@ function tripPlanner(startLat, startLong, destLat, destLong) {
       recTripLogic(trips.plans.shift());
       altTripLogic(trips.plans);
     })
-    .catch((err) => {
+    .catch(() => {
       errorMessage();
     });
 }
@@ -229,8 +229,6 @@ function altTripLogic(altTrips) {
         <ul class="alt-trip">
         </ul>`
     );
-  } else {
-    tripResultContainer.insertAdjacentHTML("beforeend", ` `);
   }
   let tripCounter = 1;
   altTrips.forEach((altTripItems) => {
@@ -280,11 +278,11 @@ function altTripLogic(altTrips) {
 }
 
 function startError() {
-  startLocationSuggestions.innerHTML = `<li>Please select a starting location!</li>`;
+  startLocationSuggestions.innerHTML = `Please select a starting location!`;
 }
 
 function destError() {
-  destLocationSuggestions.innerHTML = `<li>Please select a destination!</li>`;
+  destLocationSuggestions.innerHTML = `Please select a destination!`;
 }
 
 clearPage();
@@ -292,7 +290,7 @@ clearPage();
 startLocation.addEventListener("submit", function (e) {
   e.preventDefault();
   if (startLocation[0].value === "") {
-    return startError();
+    startLocationSuggestions.innerHTML = `<p>Please enter a location!</p>`;
   } else {
     startingPoint(startLocation[0].value);
   }
@@ -302,7 +300,7 @@ startLocation.addEventListener("submit", function (e) {
 destLocation.addEventListener("submit", function (e) {
   e.preventDefault();
   if (destLocation[0].value === "") {
-    return destError();
+    destLocationSuggestions.innerHTML = `<p>Please enter a destination!</p>`;
   } else {
     destinationPoint(destLocation[0].value);
   }
