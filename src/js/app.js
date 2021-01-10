@@ -49,10 +49,10 @@ function startingPoint(start) {
         });
       });
       displayStartResults(startLocationsArr);
-    })
-    .catch(function () {
-      alert("API Failed, please refresh the page and try again");
     });
+  // .catch(function () {
+  //   alert("API Failed, please refresh the page and try again");
+  // });
 }
 
 function destinationPoint(final) {
@@ -80,13 +80,14 @@ function destinationPoint(final) {
         });
       });
       displayDestinationResults(finalLocationArr);
-    })
-    .catch(function () {
-      alert("API Failed, please refresh the page and try again");
     });
+  // .catch(function () {
+  //   alert("API Failed, please refresh the page and try again");
+  // });
 }
 
 function displayStartResults(startResults) {
+  startLocationSuggestions.innerHTML = "";
   startResults.forEach((results) => {
     startLocationSuggestions.insertAdjacentHTML(
       "beforeend",
@@ -115,6 +116,7 @@ function selectStartLocation() {
 }
 
 function displayDestinationResults(destResults) {
+  destLocationSuggestions.innerHTML = "";
   destResults.forEach((results) => {
     destLocationSuggestions.insertAdjacentHTML(
       "beforeend",
@@ -157,8 +159,8 @@ function tripPlanner(startLat, startLong, destLat, destLong) {
       recTripLogic(trips.plans.shift());
       altTripLogic(trips.plans);
     })
-    .catch(function () {
-      console.log("Please enter a location inside Winnipeg!");
+    .catch((err) => {
+      console.log("Rejected", err);
     });
 }
 
@@ -262,23 +264,30 @@ function altTripLogic(altTrips) {
         altTripResult.insertAdjacentHTML(
           "beforeend",
           `<li><i class="fas fa-bus" aria-hidden="true"></i>Ride the ${rideRoute} for ${rideDuration} minutes.</li>`
-        );
-      }
+          );
+        }
+      });
     });
-  });
-}
-
-clearPage();
-
-startLocation.addEventListener("submit", function (e) {
-  e.preventDefault();
-  if (startLocation[0].value === "") {
+  }
+  
+  function startError() {
+    startLocationSuggestions.innerHTML = `Please select a starting location!`;
+  }
+  
+  function destError() {
+    destLocationSuggestions.innerHTML = `Please select a destination!`;
+  }
+  
+  clearPage();
+  
+  startLocation.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (startLocation[0].value === "") {
     startLocationSuggestions.innerHTML = `<p>Please enter a location!</p>`;
   } else {
     startingPoint(startLocation[0].value);
   }
   startLocation[0].value = "";
-  // console.log(startItems)
 });
 
 destLocation.addEventListener("submit", function (e) {
@@ -300,14 +309,14 @@ tripButton.addEventListener("click", function () {
   let destLat;
 
   if (startCoord[0] === undefined) {
-    console.log("Select an origin");
+    return startError();
   } else {
     ogLong = startCoord[0].attributes[0].value;
     ogLat = startCoord[0].attributes[1].value;
   }
 
   if (destCoord[0] === undefined) {
-    console.log("Select a destination");
+    return destError();
   } else {
     destLong = destCoord[0].attributes[0].value;
     destLat = destCoord[0].attributes[1].value;
@@ -318,3 +327,4 @@ tripButton.addEventListener("click", function () {
   destLocationSuggestions.innerHTML = ``;
   tripResultContainer.innerHTML = "";
 });
+
