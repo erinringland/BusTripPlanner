@@ -1,4 +1,3 @@
-
 const { src, dest, series } = require("gulp");
 const csso = require("gulp-csso");
 const concatCss = require("gulp-concat-css");
@@ -28,8 +27,13 @@ function scriptTask() {
     .pipe(dest("dist/js/"));
 }
 
+function iconTask() {
+  return src("src/icon/*").pipe(dest("dist/icon/"));
+}
+
 exports.html = htmlTask;
 exports.styles = stylesTask;
 exports.script = scriptTask;
+exports.icon = iconTask;
 
-exports.default = series(htmlTask, stylesTask, scriptTask);
+exports.default = series(htmlTask, stylesTask, scriptTask, iconTask);
